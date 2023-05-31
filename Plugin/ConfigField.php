@@ -7,6 +7,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Api\Data\WebsiteInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
+use Swissup\ScopesettingsHelp\Model\Section;
 
 class ConfigField
 {
@@ -19,9 +20,9 @@ class ConfigField
     private $helper;
 
     /**
-     * @var \Magento\Framework\App\RequestInterface
+     * @var \Swissup\ScopesettingsHelp\Model\Section
      */
-    private $request;
+    protected $section;
 
     /**
      * @var \Magento\Store\Api\WebsiteRepositoryInterface
@@ -40,19 +41,23 @@ class ConfigField
 
     /**
      * @param \Swissup\ScopesettingsHelp\Helper\Data $helper
+     * @param \Magento\Store\Api\WebsiteRepositoryInterface $websiteRepository
+     * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Url $currentUrl
      */
     public function __construct(
         \Swissup\ScopesettingsHelp\Helper\Data $helper,
-        \Magento\Framework\App\RequestInterface $request,
         \Magento\Store\Api\WebsiteRepositoryInterface $websiteRepository,
         \Magento\Store\Api\StoreRepositoryInterface $storeRepository,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        Section $section
     ) {
         $this->helper = $helper;
-        $this->request = $request;
         $this->websiteRepository = $websiteRepository;
         $this->storeRepository = $storeRepository;
         $this->scopeConfig = $scopeConfig;
+        $this->section = $section;
     }
 
     /**
@@ -61,11 +66,10 @@ class ConfigField
      */
     public function afterGetTooltip(Field $subject, $result)
     {
-        if (!$this->helper->isEnabled()) {
+        if (!$this->helper->isEnabled() || $this->section->isCurrectSection()) {
             return '';
         }
 
-        //$params = $this->request->getParams();
         $websitesArray = $this->getWebsiteList($subject);
         $storesArray = $this->getStoreList($subject);
         $mergeArrs = array_merge($websitesArray, $storesArray);
