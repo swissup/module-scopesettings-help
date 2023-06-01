@@ -72,15 +72,15 @@ class ConfigField
 
         $websitesArray = $this->getWebsiteList($subject);
         $storesArray = $this->getStoreList($subject);
-        $mergeArrs = array_merge($websitesArray, $storesArray);
+        $mergeArrs = array_unique(array_merge($websitesArray, $storesArray), SORT_REGULAR);
 
-        /* get unique values and convert to string */
+        /* prepare tooltip content string value */
         $tooltipContent = '';
         foreach ($mergeArrs as $item) {
             if (empty($item)) {
                 continue;
             }
-            $tooltipContent .= implode(" ", array_unique($item)) . "<br />";
+            $tooltipContent .= implode(" ", $item) . "<br />";
         }
 
         return $tooltipContent;
@@ -128,7 +128,6 @@ class ConfigField
     private function getScopeSettingsInfo($subject, $scopeType, $scope): array
     {
         $configPath = $subject->getPath();
-        $scopeInfo = [];
 
         if ($scopeType === self::SCOPE_TYPE_WEBSITE) {
             $configValue = $this->scopeConfig->getValue(
@@ -141,13 +140,25 @@ class ConfigField
             $configValue = $this->scopeConfig->getValue(
                 $configPath,
                 ScopeInterface::SCOPE_STORE,
-                $scope->getId()
+                $scope
             );
-            $scopeCode = $scope->getCode();
+
+            $scopeCode = $scope->getCode() === 'admin'
+                ? $scope->getCode()
+                : $scope->getCode() . ' ' . self::SCOPE_TYPE_STORE;
         }
 
+        $scopeInfo = [];
         if (!is_null($configValue)) {
-            $scopeInfo[] = $configValue . " - " . $scopeCode;
+            if (is_numeric($configValue)) {
+                /* use intuitive value Yes / No instead of '1' / '0'  */
+                $configValue = $configValue === '1' ? __('Yes') : __('No');
+            }
+
+            $scopeInfo[] = '<span class="config_value">' .
+                            ucwords($configValue) .
+                           '</span> - ' .
+                            ucwords($scopeCode);
         }
 
         return $scopeInfo;
