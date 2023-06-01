@@ -5,8 +5,11 @@ Module has implementation for Magento 2 Admin configurations only.
 
 ## Installation
 
+### For developers
+
 ```bash
 cd <magento_root>
-composer require swissup/module-scopesettings-help
+composer config repositories.swissup composer https://docs.swissuplabs.com/packages/
+composer require swissup/module-scopesettings-help --prefer-source
 bin/magento setup:upgrade
 ```
