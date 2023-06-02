@@ -152,7 +152,7 @@ class ConfigField
         if (!is_null($configValue)) {
             if (is_numeric($configValue)) {
                 /* use intuitive value Yes / No instead of '1' / '0'  */
-                $configValue = $configValue === '1' ? __('Yes') : __('No');
+                $configValue = $this->useIntuitiveConfigValue((int) $configValue);
             }
 
             $scopeInfo[] = '<span class="config_value">' .
@@ -162,6 +162,16 @@ class ConfigField
         }
 
         return $scopeInfo;
+    }
+
+    public function useIntuitiveConfigValue($configValue): string
+    {
+        foreach ([0 => __('No'), 1 => __('Yes')] as $key => $value) {
+            if ($key === $configValue) {
+                $configValue = $value;
+            }
+        }
+        return $configValue;
     }
 
     private function getScopeTypeWebsite(): string
