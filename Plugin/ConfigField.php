@@ -76,11 +76,20 @@ class ConfigField
 
         /* prepare tooltip content string value */
         $tooltipContent = '';
+        $configValues = [];
         foreach ($mergeArrs as $item) {
             if (empty($item)) {
                 continue;
             }
-            $tooltipContent .= implode(" ", $item) . "<br />";
+
+            $configValues[] = explode('-', $item[0])[0];
+        }
+
+        /* show tooltip info only when uniq config values set */
+        if (count(array_unique($configValues)) > 1) {
+            foreach ($mergeArrs as $item) {
+                $tooltipContent .= implode(" ", $item) . "<br />";
+            }
         }
 
         return $tooltipContent;
